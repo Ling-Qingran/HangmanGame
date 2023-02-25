@@ -4,13 +4,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import com.example.hangmangame.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding:ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val playButton: Button = findViewById(R.id.playButton)
-        playButton.setOnClickListener {
+        binding=ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.playButton.setOnClickListener {
+            //start GameActivity to begin the game
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)
         }

@@ -1,6 +1,7 @@
 package com.example.hangmangame
 
 object GameConstants {
+    val maxTries=7;
     val words = listOf(
         "jungle",
         "zipper",
