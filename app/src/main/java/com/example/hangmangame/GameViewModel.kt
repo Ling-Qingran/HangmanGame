@@ -4,11 +4,17 @@ import androidx.lifecycle.ViewModel
 import kotlin.random.Random
 
 class GameViewModel:ViewModel() {
+    private var gameState: Int=2;
+    //0: lost  1: win  2:running
     private var lettersUsed: String=""
     private var currTries: Int = 0
     private var drawable: Int=R.drawable.game01;
-    private lateinit var wordToGuess: String;
-    private lateinit var underscoreWord: String;
+    private var wordToGuess: String=generateWord();
+    private var underscoreWord: String=GameManager().generateUnderScore(wordToGuess.length);
+
+    var currentGameState:Int
+        get() = gameState
+        set(value) {gameState=value}
 
     var currentLettersUsed:String
         get() = lettersUsed
@@ -27,27 +33,32 @@ class GameViewModel:ViewModel() {
         get() = underscoreWord
         set(value) {underscoreWord=value}
 
-    fun startNewGame():GameState{
+    fun startNewGame(){
         lettersUsed="";
         currTries=0;
-        drawable=R.drawable.game08
-        wordToGuess=GameConstants.words[Random.nextInt(GameConstants.words.size)]
+        drawable=R.drawable.game01
+        wordToGuess=generateWord()
         underscoreWord=GameManager().generateUnderScore(wordToGuess.length)
-        return getGameState()
+        gameState=2
     }
-    private fun getGameState():GameState{
-        return if(underscoreWord == wordToGuess){
-            GameState.GameWin(wordToGuess)
+
+    fun generateWord(): String {
+        return GameConstants.words[Random.nextInt(GameConstants.words.size)]
+    }
+    private fun judgeGameState(){
+        if(underscoreWord.uppercase() == wordToGuess.uppercase()) {
+            gameState=1 //win
         } else if(currTries==GameConstants.maxTries){
-            GameState.GameLost(wordToGuess)
+            gameState=0; //lost
         }else{
             drawable=GameManager().getDrawable(currTries)
-            GameState.GameRunning(lettersUsed,underscoreWord,drawable)
+            gameState=2//game running
         }
     }
-    fun playGame(letter: Char):GameState{
+    fun playGame(letter: Char){
         if(lettersUsed.contains(letter)){
-            return GameState.GameRunning(lettersUsed,underscoreWord,drawable)
+            gameState=2
+            return;
         }
         lettersUsed+=letter;
         val indexes=ArrayList<Int>();
@@ -66,7 +77,7 @@ class GameViewModel:ViewModel() {
             updatedUnderScore = sb.toString()
         }
         underscoreWord=updatedUnderScore
-        return getGameState()
+        judgeGameState()
 
     }
 

@@ -5,42 +5,6 @@ import kotlin.random.Random
 
 class GameManager {
 
-
-    //restart a new game, clear all values set before
-//    fun startNewGame():GameState{
-//        lettersUsed="";
-//        currTries=0;
-//        drawable=R.drawable.game08
-//        wordToGuess=GameConstants.words[Random.nextInt(GameConstants.words.size)]
-//        underscoreWord=generateUnderScore(wordToGuess.length)
-//        return getGameState()
-//    }
-
-//    fun playGame(letter: Char):GameState{
-////        if(lettersUsed.contains(letter)){
-////            return GameState.GameRunning(lettersUsed,underscoreWord,drawable)
-////        }
-//        lettersUsed+=letter;
-//        val indexes=ArrayList<Int>();
-//        wordToGuess.forEachIndexed { index, char ->
-//            if (char.equals(letter, true)) {
-//                indexes.add(index)
-//            }
-//        }
-//
-//        if(indexes.size ==0){
-//            currTries++;
-//        }
-//        var updatedUnderScore=""+underscoreWord;
-//        indexes.forEach { index ->
-//            val sb = StringBuilder(updatedUnderScore).also { it.setCharAt(index, letter) }
-//            updatedUnderScore = sb.toString()
-//        }
-//        underscoreWord=updatedUnderScore
-//        return getGameState()
-//
-//    }
-
     fun getDrawable(currTries:Int):Int{
         return when(currTries){
             0->R.drawable.game01
@@ -63,14 +27,4 @@ class GameManager {
         return sb.toString();
     }
 
-//    private fun getGameState():GameState{
-//        return if(underscoreWord == wordToGuess){
-//            GameState.GameWin(wordToGuess)
-//        } else if(currTries==maxTries){
-//            GameState.GameLost(wordToGuess)
-//        }else{
-//            drawable=getDrawable()
-//            GameState.GameRunning(lettersUsed,underscoreWord,drawable)
-//        }
-//    }
 }

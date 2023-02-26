@@ -1,5 +1,7 @@
 package com.example.hangmangame
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -19,13 +21,15 @@ class GameActivity: AppCompatActivity() {
         binding.newGameButton.setOnClickListener {
             startNewGame();
         }
-        val gameState=gameViewModel.startNewGame()
-        updateUI(gameState)
+        //gameViewModel.startNewGame()
+//        gameViewModel.currentWordToGuess= intent.getStringExtra("wordToGuess").toString();
+//        gameViewModel.currentUnderscoreWord= intent.getStringExtra("underScore").toString()
+        updateUI(gameViewModel.currentGameState)
         for(views in binding.lettersLayout.children){
             if(views is TextView){
                 views.setOnClickListener{
-                    val gameState=gameViewModel.playGame(views.text[0])
-                    updateUI(gameState)
+                    gameViewModel.playGame(views.text[0])
+                    updateUI(gameViewModel.currentGameState)
                     views.visibility=View.GONE
                 }
             }
@@ -35,37 +39,45 @@ class GameActivity: AppCompatActivity() {
 
     }
 
+    private fun loadGame(){
+        when(gameViewModel.currentGameState){
+            0->{
+
+            }
+        }
+    }
+
     //activities when starting a new turn
     private fun startNewGame() {
         binding.gameLostTextView.visibility= View.GONE
         binding.gameWonTextView.visibility=View.GONE
-        val gameState=gameViewModel.startNewGame()
+        gameViewModel.startNewGame()
         binding.lettersLayout.visibility=View.VISIBLE
         for(views in binding.lettersLayout.children){
             views.visibility=View.VISIBLE
         }
-        updateUI(gameState)
+        updateUI(gameViewModel.currentGameState)
     }
 
 
     //update the user interface with game state
-    private fun updateUI(gameState: GameState) {
-        when(gameState){
-            is GameState.GameLost-> showGameLostUI(gameState.wordToGuess);
-            is GameState.GameWin -> showGameWinUI(gameState.wordToGuess)
-            is GameState.GameRunning-> showGameRunningUI(gameState.underScoreWords,gameState.lettersUsed,gameState.drawable)
+    private fun updateUI(state: Int) {
+        when(state){
+            0-> showGameLostUI(gameViewModel.currentWordToGuess);
+            1-> showGameWinUI(gameViewModel.currentWordToGuess);
+            2-> showGameRunningUI(gameViewModel.currentUnderscoreWord,gameViewModel.currentLettersUsed,gameViewModel.currentDrawable);
 
         }
     }
 
     private fun showGameWinUI(wordToGuess: String) {
-        binding.wordTextView.text=wordToGuess;
+        binding.wordTextView.text=wordToGuess.uppercase();
         binding.gameWonTextView.visibility=View.VISIBLE
         binding.lettersLayout.visibility=View.GONE
     }
 
     private fun showGameLostUI(wordToGuess: String) {
-        binding.wordTextView.text=wordToGuess
+        binding.wordTextView.text=wordToGuess.uppercase()
         binding.gameLostTextView.visibility=View.VISIBLE
         binding.lettersLayout.visibility=View.GONE
         binding.imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.game08))
@@ -76,6 +88,15 @@ class GameActivity: AppCompatActivity() {
         binding.wordTextView.text=underScoreWords
         binding.lettersUsedTextView.text=lettersUsed
         binding.imageView.setImageDrawable(ContextCompat.getDrawable(this,drawable))
+    }
+
+    companion object{
+        fun newIntent(packageContext: Context, wordToGuess: String,underScoreWords: String): Intent {
+            return Intent(packageContext,GameActivity::class.java).apply {
+                putExtra("wordToGuess",wordToGuess)
+                putExtra("underScore",underScoreWords)
+            }
+        }
     }
 
 }
