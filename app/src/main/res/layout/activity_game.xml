@@ -17,7 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:rotation="-45"
-        android:text="You Lost!"
+        android:text="@string/you_lost"
         android:textColor="#BB4444"
         android:textSize="36sp"
         android:textStyle="bold"
@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:rotation="-45"
-        android:text="You Won!"
+        android:text="@string/you_won"
         android:textColor="#44BB44"
         android:textSize="36sp"
         android:textStyle="bold"
@@ -71,6 +71,18 @@
         android:layout_marginTop="8dp"
         android:text="Start New Game"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/hintButton"
+        app:layout_constraintTop_toBottomOf="@id/lettersUsedTextView" />
+
+    <Button
+        android:id="@+id/hintButton"
+        android:layout_width="75dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Hint"
+        app:layout_constraintRight_toLeftOf="@id/newGameButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lettersUsedTextView" />
 

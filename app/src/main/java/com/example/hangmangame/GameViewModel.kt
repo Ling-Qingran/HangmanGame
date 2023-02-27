@@ -11,6 +11,7 @@ class GameViewModel:ViewModel() {
     private var drawable: Int=R.drawable.game01;
     private var wordToGuess: String=generateWord();
     private var underscoreWord: String=GameManager().generateUnderScore(wordToGuess.length);
+    private var hintCount: Int=0;
 
     var currentGameState:Int
         get() = gameState
@@ -33,7 +34,12 @@ class GameViewModel:ViewModel() {
         get() = underscoreWord
         set(value) {underscoreWord=value}
 
+    var currentHintCount:Int
+        get() = hintCount
+        set(value) {hintCount=value}
+
     fun startNewGame(){
+        hintCount=0;
         lettersUsed="";
         currTries=0;
         drawable=R.drawable.game01
@@ -42,7 +48,7 @@ class GameViewModel:ViewModel() {
         gameState=2
     }
 
-    fun generateWord(): String {
+    private fun generateWord(): String {
         return GameConstants.words[Random.nextInt(GameConstants.words.size)]
     }
     private fun judgeGameState(){

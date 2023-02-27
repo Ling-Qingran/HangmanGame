@@ -3,14 +3,19 @@ package com.example.hangmangame
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import com.example.hangmangame.databinding.ActivityGameBinding
+import com.google.android.material.snackbar.Snackbar
+import org.w3c.dom.Text
 
+const val TAG="Test Point"
 class GameActivity: AppCompatActivity() {
     private lateinit var binding:ActivityGameBinding
     private val gameViewModel: GameViewModel by viewModels()
@@ -33,17 +38,121 @@ class GameActivity: AppCompatActivity() {
                     views.visibility=View.GONE
                 }
             }
-            
-            
+        }
+        binding.hintButton.setOnClickListener {
+            showHint();
         }
 
     }
 
-    private fun loadGame(){
-        when(gameViewModel.currentGameState){
+    private fun showHint() {
+        when(gameViewModel.currentHintCount){
             0->{
+                Toast.makeText(
+                    this,
+                    gameViewModel.currentWordToGuess,
+                    Toast.LENGTH_SHORT
+                ).show()
+                gameViewModel.currentHintCount+=1
 
             }
+            1->{
+                if((gameViewModel.currentTries+1)==GameConstants.maxTries){
+                    Toast.makeText(
+                        this,
+                        "Hint not available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.hintButton.isEnabled=false
+                    return;
+                }
+
+                hint2DisableLetters();
+            }
+            2->{
+
+                if((gameViewModel.currentTries+1)==GameConstants.maxTries){
+                    Toast.makeText(
+                        this,
+                        "Hint not available",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.hintButton.isEnabled=false
+                    return;
+                }
+
+                hint3ShowVowels();
+
+            }
+            else->{
+            Toast.makeText(
+                this,
+                "You have used all the hints",
+                Toast.LENGTH_SHORT
+            ).show()
+            binding.hintButton.isEnabled=false
+            }
+        }
+
+    }
+
+    private fun hintsUpdateViewModels() {
+        gameViewModel.currentTries+=1
+        gameViewModel.currentHintCount+=1
+        gameViewModel.currentDrawable=GameManager().getDrawable(gameViewModel.currentTries)
+        binding.imageView.setImageDrawable(ContextCompat.getDrawable(this,gameViewModel.currentDrawable))
+    }
+
+    private fun hint2DisableLetters(){
+        hintsUpdateViewModels()
+        val hintLetters=ArrayList<TextView>();
+        for(views in binding.lettersLayout.children){
+            if(views is TextView && views.visibility==0 &&!gameViewModel.currentWordToGuess.contains(views.text[0], ignoreCase = true)){
+                hintLetters.add(views);
+            }
+        }
+//        Log.d("currentWordToGuess",gameViewModel.currentWordToGuess)
+//        for (i in 0 until hintLetters.size){
+//            Log.d("hintLetters", hintLetters[i].text[0].toString())
+//        }
+        for(i in 0 until hintLetters.size step 2){
+//            Log.d("not visible",hintLetters[i].text[0].toString())
+            hintLetters[i].visibility=View.GONE
+        }
+
+    }
+    private fun hint3ShowVowels() {
+
+        hintsUpdateViewModels()
+        val hintLetters=ArrayList<TextView>();
+
+        val vowels=charArrayOf('A', 'E', 'I', 'O', 'U')
+
+        for(views in binding.lettersLayout.children){
+            if(views is TextView && views.visibility==0
+                && gameViewModel.currentWordToGuess.contains(views.text[0], ignoreCase = true) && vowels.contains(views.text[0])){
+                hintLetters.add(views)
+                views.setBackgroundResource(R.color.red);
+            }
+        }
+        Log.d("test"," ${hintLetters.size}")
+//        for (i in 0 until hintLetters.size){
+//            Log.d(TAG,"$i")
+//            Log.d("hintLetters", hintLetters[i].text[0].toString())
+//        }
+
+        for(letter in binding.lettersLayout.children){
+            if(letter is TextView){
+                letter.setOnClickListener{
+                    letter.visibility=View.GONE;
+                    gameViewModel.playGame(letter.text[0])
+                    updateUI(gameViewModel.currentGameState)
+                    for(i in hintLetters){
+                        i.setBackgroundResource(R.color.teal_700);
+                    }
+                }
+            }
+
         }
     }
 
@@ -51,6 +160,7 @@ class GameActivity: AppCompatActivity() {
     private fun startNewGame() {
         binding.gameLostTextView.visibility= View.GONE
         binding.gameWonTextView.visibility=View.GONE
+        binding.hintButton.isEnabled=true;
         gameViewModel.startNewGame()
         binding.lettersLayout.visibility=View.VISIBLE
         for(views in binding.lettersLayout.children){
@@ -71,12 +181,14 @@ class GameActivity: AppCompatActivity() {
     }
 
     private fun showGameWinUI(wordToGuess: String) {
+        binding.hintButton.isEnabled=false
         binding.wordTextView.text=wordToGuess.uppercase();
         binding.gameWonTextView.visibility=View.VISIBLE
         binding.lettersLayout.visibility=View.GONE
     }
 
     private fun showGameLostUI(wordToGuess: String) {
+        binding.hintButton.isEnabled=false
         binding.wordTextView.text=wordToGuess.uppercase()
         binding.gameLostTextView.visibility=View.VISIBLE
         binding.lettersLayout.visibility=View.GONE
@@ -98,5 +210,7 @@ class GameActivity: AppCompatActivity() {
             }
         }
     }
+
+
 
 }
