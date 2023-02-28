@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.*
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.PerformException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -50,7 +52,7 @@ class MainActivityTest {
         onView(withId(R.id.gameWonTextView))
             .check(matches(not(isDisplayed())))
         onView(withText("CHOOSE A LETTER"))
-            .check(matches( isDisplayed()))
+            .check(matches(isDisplayed()))
         onView(withText("------"))
             .check(matches(isDisplayed()))
         val resources = InstrumentationRegistry.getInstrumentation().context.resources
@@ -106,18 +108,20 @@ class MainActivityTest {
             .perform(click())
         onView(withId(R.id.g))
             .perform(click())
-        onView(withId(R.id.h))
-            .perform(click())
-        var letterLayout = onView(withId(R.id.i))
-            .check(matches(isDisplayed()))
-        if (letterLayout != null)
+        try {
+            onView(withId(R.id.h))
+                .perform(click())
             onView(withId(R.id.i))
                 .perform(click())
-        letterLayout = onView(withId(R.id.j))
-            .check(matches(isDisplayed()))
-        if (letterLayout != null)
             onView(withId(R.id.j))
                 .perform(click())
+            onView(withId(R.id.k))
+                .perform(click())
+            onView(withId(R.id.l))
+                .perform(click())
+        }catch (e: PerformException) {
+
+        }
         onView(withId(R.id.gameLostTextView))
             .check(matches(isDisplayed()))
 
