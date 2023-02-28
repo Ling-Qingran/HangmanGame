@@ -1,6 +1,8 @@
 package com.example.hangmangame
 
+import android.widget.TextView
 import androidx.lifecycle.ViewModel
+import org.w3c.dom.Text
 import kotlin.random.Random
 
 class GameViewModel:ViewModel() {
@@ -12,6 +14,27 @@ class GameViewModel:ViewModel() {
     private var wordToGuess: String=generateWord();
     private var underscoreWord: String=GameManager().generateUnderScore(wordToGuess.length);
     private var hintCount: Int=0;
+    private var letterIsVisibility: HashMap<Int, Boolean> =HashMap()
+    private var letterColor: HashMap<Int, Int> =HashMap()
+    private var hintButtonEnabled:Boolean=true
+    fun getLetterIsVisibility():HashMap<Int, Boolean>  {
+        return letterIsVisibility
+    }
+    fun addLetterIsVisibility(id:Int, visible:Boolean){
+        letterIsVisibility[id] = visible
+    }
+    fun getLetterColor():HashMap<Int,Int>{
+        return letterColor
+    }
+    fun addLetterColor(id:Int,color:Int){
+        letterColor[id]=color
+    }
+    fun getHintButtonEnabled():Boolean{
+        return hintButtonEnabled
+    }
+    fun setHintButtonEnabled(state: Boolean){
+        hintButtonEnabled=state
+    }
 
     var currentGameState:Int
         get() = gameState

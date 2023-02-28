@@ -12,8 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import com.example.hangmangame.databinding.ActivityGameBinding
-import com.google.android.material.snackbar.Snackbar
-import org.w3c.dom.Text
 
 const val TAG="Test Point"
 class GameActivity: AppCompatActivity() {
@@ -23,24 +21,27 @@ class GameActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding= ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        updateUI(gameViewModel.currentGameState)
         binding.newGameButton.setOnClickListener {
             startNewGame();
         }
         //gameViewModel.startNewGame()
 //        gameViewModel.currentWordToGuess= intent.getStringExtra("wordToGuess").toString();
 //        gameViewModel.currentUnderscoreWord= intent.getStringExtra("underScore").toString()
-        updateUI(gameViewModel.currentGameState)
         for(views in binding.lettersLayout.children){
             if(views is TextView){
                 views.setOnClickListener{
                     gameViewModel.playGame(views.text[0])
-                    updateUI(gameViewModel.currentGameState)
+
                     views.visibility=View.GONE
+                    gameViewModel.addLetterIsVisibility(views.id,false);
+                    updateUI(gameViewModel.currentGameState)
                 }
             }
         }
         binding.hintButton.setOnClickListener {
             showHint();
+            updateUI(gameViewModel.currentGameState)
         }
 
     }
@@ -64,6 +65,7 @@ class GameActivity: AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                     binding.hintButton.isEnabled=false
+                    gameViewModel.setHintButtonEnabled(false)
                     return;
                 }
 
@@ -78,6 +80,7 @@ class GameActivity: AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                     binding.hintButton.isEnabled=false
+                    gameViewModel.setHintButtonEnabled(false)
                     return;
                 }
 
@@ -91,6 +94,7 @@ class GameActivity: AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
             binding.hintButton.isEnabled=false
+            gameViewModel.setHintButtonEnabled(false)
             }
         }
 
@@ -104,6 +108,7 @@ class GameActivity: AppCompatActivity() {
     }
 
     private fun hint2DisableLetters(){
+        //if(savedInstanceState!=null)
         hintsUpdateViewModels()
         val hintLetters=ArrayList<TextView>();
         for(views in binding.lettersLayout.children){
@@ -118,6 +123,7 @@ class GameActivity: AppCompatActivity() {
         for(i in 0 until hintLetters.size step 2){
 //            Log.d("not visible",hintLetters[i].text[0].toString())
             hintLetters[i].visibility=View.GONE
+            gameViewModel.addLetterIsVisibility(hintLetters[i].id,false);
         }
 
     }
@@ -133,8 +139,10 @@ class GameActivity: AppCompatActivity() {
                 && gameViewModel.currentWordToGuess.contains(views.text[0], ignoreCase = true) && vowels.contains(views.text[0])){
                 hintLetters.add(views)
                 views.setBackgroundResource(R.color.red);
+                gameViewModel.addLetterColor(views.id,R.color.red)
             }
         }
+        updateUI(gameViewModel.currentGameState)
         Log.d("test"," ${hintLetters.size}")
 //        for (i in 0 until hintLetters.size){
 //            Log.d(TAG,"$i")
@@ -145,15 +153,21 @@ class GameActivity: AppCompatActivity() {
             if(letter is TextView){
                 letter.setOnClickListener{
                     letter.visibility=View.GONE;
+                    gameViewModel.addLetterIsVisibility(letter.id,false)
                     gameViewModel.playGame(letter.text[0])
                     updateUI(gameViewModel.currentGameState)
-                    for(i in hintLetters){
-                        i.setBackgroundResource(R.color.teal_700);
-                    }
+
+                    letter.setBackgroundResource(R.color.teal_700);
+                    gameViewModel.addLetterColor(letter.id,R.color.teal_700)
+
+                    updateUI(gameViewModel.currentGameState)
+
                 }
             }
 
         }
+
+
     }
 
     //activities when starting a new turn
@@ -161,10 +175,14 @@ class GameActivity: AppCompatActivity() {
         binding.gameLostTextView.visibility= View.GONE
         binding.gameWonTextView.visibility=View.GONE
         binding.hintButton.isEnabled=true;
+        gameViewModel.setHintButtonEnabled(true)
         gameViewModel.startNewGame()
         binding.lettersLayout.visibility=View.VISIBLE
         for(views in binding.lettersLayout.children){
             views.visibility=View.VISIBLE
+            gameViewModel.addLetterIsVisibility(views.id,true);
+            views.setBackgroundResource(R.color.teal_700);
+            gameViewModel.addLetterColor(views.id,R.color.teal_700)
         }
         updateUI(gameViewModel.currentGameState)
     }
@@ -175,7 +193,8 @@ class GameActivity: AppCompatActivity() {
         when(state){
             0-> showGameLostUI(gameViewModel.currentWordToGuess);
             1-> showGameWinUI(gameViewModel.currentWordToGuess);
-            2-> showGameRunningUI(gameViewModel.currentUnderscoreWord,gameViewModel.currentLettersUsed,gameViewModel.currentDrawable);
+            2-> showGameRunningUI(gameViewModel.currentUnderscoreWord,gameViewModel.currentLettersUsed,gameViewModel.currentDrawable,
+            gameViewModel.getLetterIsVisibility(),gameViewModel.getLetterColor());
 
         }
     }
@@ -196,10 +215,21 @@ class GameActivity: AppCompatActivity() {
 
     }
 
-    private fun showGameRunningUI(underScoreWords:String, lettersUsed: String, drawable:Int){
+    private fun showGameRunningUI(underScoreWords:String, lettersUsed: String, drawable:Int,lettersVisible:HashMap<Int,Boolean>,
+    lettersColor:HashMap<Int,Int>){
         binding.wordTextView.text=underScoreWords
         binding.lettersUsedTextView.text=lettersUsed
         binding.imageView.setImageDrawable(ContextCompat.getDrawable(this,drawable))
+        for(views in binding.lettersLayout.children){
+            if(lettersVisible[views.id] == true){
+                views.visibility=View.VISIBLE
+            }else{
+                views.visibility=View.GONE
+            }
+            lettersColor[views.id]?.let { views.setBackgroundColor(it) }
+        }
+        binding.hintButton.isEnabled = gameViewModel.getHintButtonEnabled()
+
     }
 
     companion object{
