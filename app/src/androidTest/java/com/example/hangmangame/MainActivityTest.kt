@@ -51,6 +51,8 @@ class MainActivityTest {
             .check(matches(not(isDisplayed())))
         onView(withId(R.id.gameWonTextView))
             .check(matches(not(isDisplayed())))
+        onView(withId(R.id.newGameButton))
+            .perform(click())
         onView(withText("CHOOSE A LETTER"))
             .check(matches(isDisplayed()))
         onView(withText("------"))
@@ -70,6 +72,8 @@ class MainActivityTest {
     fun checkUsedLetter() {
         onView(withId(R.id.playButton))
             .perform(click())
+        onView(withId(R.id.newGameButton))
+            .perform(click())
         onView(withId(R.id.a))
             .perform(click())
         onView(withId(R.id.lettersUsedTextView))
@@ -79,6 +83,8 @@ class MainActivityTest {
     @Test
     fun checkRestart() {
         onView(withId(R.id.playButton))
+            .perform(click())
+        onView(withId(R.id.newGameButton))
             .perform(click())
         onView(withId(R.id.a))
             .perform(click())
@@ -93,6 +99,8 @@ class MainActivityTest {
     @Test
     fun checkLose() {
         onView(withId(R.id.playButton))
+            .perform(click())
+        onView(withId(R.id.newGameButton))
             .perform(click())
         onView(withId(R.id.a))
             .perform(click())
